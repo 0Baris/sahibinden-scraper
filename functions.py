@@ -29,7 +29,7 @@ def veri_cek(ilan_model,ilan_basligi,ilan_kilometre,ilan_fiyati,ilan_tarihi,ilan
     """)
 
 
-    ### Listelere tek tek contentleri ekleme
+    ### Gelen verilerin satır halinde birleştirilip veritabanına gönderilmesi.
     for i in range(min(len(ilan_model), len(ilan_basligi), len(ilan_kilometre), len(ilan_fiyati), len(ilan_tarihi), len(ilan_sehir))):
          try:
             obje = {}
