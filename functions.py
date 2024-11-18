@@ -53,32 +53,7 @@ def veri_cek(ilan_model,ilan_basligi,ilan_kilometre,ilan_fiyati,ilan_tarihi,ilan
     connect.commit()
     cursor.close()
     connect.close()
-
-    """
     
-    database = pd.DataFrame(items)
-
-    try:
-        ### Reklam satırlarının silinmesi
-        database = database.dropna(how="any")
-
-        ### Medyan,minimum ve maximum değerlerinin alınabilmesi için veri tipi değiştirilmesi
-        database['Kilometre'] = pd.to_numeric(database['Kilometre'].replace('', np.nan), errors='coerce')
-
-        ### Database mevcut olan 'TL' değerenin değiştirilmesi.
-        database['Fiyat'] = database['Fiyat'].str.replace('TL', '', regex=False)
-        database['Fiyat'] = database['Fiyat'].str.replace('.', '').str.strip()
-        database['Fiyat'] = pd.to_numeric(database['Fiyat'], errors='coerce')
-
-        ### Database'de mevcut olan Adresteki karakterleri temizleme.
-        database['Adres'] = database['Adres'].str.replace('\n', ' ', regex=False)
-
-        ### Database'de mevcut olan Tarihteki karakterleri temizleme.
-        database['Tarih'] = database['Tarih'].str.replace('\n', ' ', regex=False)
-
-    finally:
-    """
-
     return print("Tamamlandı!")
 
 if __name__ == "__main__":
