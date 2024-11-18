@@ -1,2 +1,2 @@
 # sahibinden-scraper
-A basic web scraping for sahibinden.com
+A basic web scraping app for sahibinden.com
