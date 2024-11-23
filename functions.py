@@ -1,7 +1,7 @@
 import psycopg2
 
 
-def veri_cek(ilan_model,ilan_basligi,ilan_kilometre,ilan_fiyati,ilan_tarihi,ilan_sehir):
+def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, ilan_fiyati, ilan_sehir,ilan_tarihi):
     """
     Sahibinden sitesinden verilerin çekilmesi ve dataframe oluşturulma aşaması burada gerçekleşir.
     :return:
@@ -17,30 +17,40 @@ def veri_cek(ilan_model,ilan_basligi,ilan_kilometre,ilan_fiyati,ilan_tarihi,ilan
     cursor.execute("""CREATE TABLE IF NOT EXISTS sahibinden(
         id SERIAL PRIMARY KEY,
         baslik VARCHAR(150),
+        marka VARCHAR(30),
         model VARCHAR(100),
+        motor VARCHAR(75),
+        renk VARCHAR(20),
+        yil INT,
         kilometre INT,
         fiyat INT,
-        adres VARCHAR(150),
-        tarih VARCHAR(50)
+        tarih VARCHAR(100),
+        adres VARCHAR(100)
         
     )
     
     """)
 
-    ### Listelere tek tek contentleri eklem
+
     try:
         obje = {}
         obje['İlan Başlığı'] = ilan_basligi
+        obje['Marka'] = marka
         obje['Model'] = ilan_model
+        obje['Motor'] = motor
+        obje['Renk'] = renk
+        obje['Yıl'] = yil
         obje['Kilometre'] = ilan_kilometre
         obje['Fiyat'] = ilan_fiyati
         obje['Adres'] = ilan_tarihi
         obje['Tarih'] = ilan_sehir
 
         cursor.execute("""
-                    INSERT INTO sahibinden (baslik, model, kilometre, fiyat, adres, tarih)
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                    """, (obje['İlan Başlığı'], obje['Model'], obje['Kilometre'], obje['Fiyat'], obje['Adres'], obje['Tarih']))
+                           INSERT INTO sahibinden (baslik, marka, motor, model, renk, yil, kilometre, fiyat, adres, tarih)
+                               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                           """, (
+                                        obje['İlan Başlığı'], obje['Marka'], obje['Motor'], obje['Model'], obje['Renk'], obje['Yıl'], obje['Kilometre'],
+                                            obje['Fiyat'], obje['Adres'], obje['Tarih']))
 
     except Exception as e:
         print(f"Veri aktarılamadı hata kodu: {e}")
