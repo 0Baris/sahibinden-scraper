@@ -1,7 +1,7 @@
 import psycopg2
 
 
-def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, ilan_fiyati, ilan_sehir,ilan_tarihi):
+def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, ilan_fiyati, ilan_tarihi, ilan_sehir):
     """
     Sahibinden sitesinden çekilen veriler ile database oluşturulma aşaması burada gerçekleşir.
     :return:
@@ -46,22 +46,22 @@ def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, 
         obje['Yıl'] = yil
         obje['Kilometre'] = ilan_kilometre
         obje['Fiyat'] = ilan_fiyati
-        obje['Adres'] = ilan_tarihi
-        obje['Tarih'] = ilan_sehir
+        obje['İlan Tarihi'] = ilan_tarihi
+        obje['Adres'] = ilan_sehir
 
         ## Veritabanındaki anlık verilerin her döngüde yenilenmesi.
-        cursor.execute("SELECT baslik, marka, motor, model FROM sahibinden")
+        cursor.execute("SELECT baslik, motor, adres, kilometre,tarih  FROM sahibinden")
         mevcut_veriler = cursor.fetchall()
 
         ## Veritabanında gönderilen aracın verileri mevcut ise, verinin atlanması ve sonraki aracın verilerinin eklenmesi.
-        yeni_veri = (obje['İlan Başlığı'], obje['Motor'], obje['Adres'], obje['Kilometre'], obje['Tarih'])
+        yeni_veri = (obje['İlan Başlığı'], obje['Motor'], obje['Adres'], obje['Kilometre'], obje['İlan Tarihi'])
         if yeni_veri in mevcut_veriler:
                 print("Veri atlandı")
         else:
             print("Obje veritabanına eklendi")
             cursor.execute("""
                         INSERT INTO sahibinden 
-                        (baslik, marka, motor, model, renk, yil, kilometre, fiyat, adres, tarih)
+                        (baslik, marka, motor, model, renk, yil, kilometre, fiyat, tarih, adres)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (
                     obje['İlan Başlığı'],
@@ -72,8 +72,8 @@ def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, 
                     obje['Yıl'],
                     obje['Kilometre'],
                     obje['Fiyat'],
-                    obje['Adres'],
-                    obje['Tarih']
+                    obje['İlan Tarihi'],
+                    obje['Adres']
                 ))
 
             connect.commit()
