@@ -14,7 +14,11 @@ Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Pyt
 
 ## Gereksinimler
 
+- `Python 3.x`
 - `Chrome`
+- `PostreSQL`
+
+---
 
 ### Python Kütüphaneleri
 
@@ -23,6 +27,8 @@ Kullanılan python kütüphaneleri.
 - `selenium`
 - `undetected_chromedriver`
 - `psycopg2`
+
+---
 
 ### PostgreSQL
 Bu projede PostreSQL kullanılmaktadır, internetten kurulum sağlayabilirsiniz.
@@ -62,6 +68,7 @@ python main.py
 
 4. Veriler PostgreSQL veritabanınızdaki `sahibinden` tablosuna kaydedilecektir.
 
+---
 
 ## İletişim
 
