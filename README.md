@@ -42,7 +42,7 @@ Bu projede PostreSQL kullanılmaktadır, internetten kurulum sağlayabilirsiniz.
 ```bash
 git clone https://github.com/0Baris/sahibinden-scraper.git
 cd sahibinden-scraper
-pip install requirements.txt
+pip install -r requirements.txt
 
 ```
 
