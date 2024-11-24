@@ -3,17 +3,20 @@ import psycopg2
 
 def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, ilan_fiyati, ilan_sehir,ilan_tarihi):
     """
-    Sahibinden sitesinden verilerin çekilmesi ve dataframe oluşturulma aşaması burada gerçekleşir.
+    Sahibinden sitesinden çekilen veriler ile database oluşturulma aşaması burada gerçekleşir.
     :return:
     """
 
+    ## Veritabanı bağlantısı.
     connect = psycopg2.connect(host="localhost", dbname = "postgres",
                                user = "postgres", password = "1234",
                                port = 5432
                                )
 
+    ## Veritabanında işlem yapabilmek için cursor.
     cursor = connect.cursor()
 
+    ## Veritabanı tablosu mevcut değilse oluşturulması.
     cursor.execute("""CREATE TABLE IF NOT EXISTS sahibinden(
         id SERIAL PRIMARY KEY,
         baslik VARCHAR(150),
@@ -31,8 +34,9 @@ def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, 
     
     """)
 
-
+    ## Veritabanına gelen verilerin aktarılması.
     try:
+        ## Gelen verilerden sözlük oluşturulması.
         obje = {}
         obje['İlan Başlığı'] = ilan_basligi
         obje['Marka'] = marka
@@ -45,19 +49,44 @@ def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, 
         obje['Adres'] = ilan_tarihi
         obje['Tarih'] = ilan_sehir
 
-        cursor.execute("""
-                           INSERT INTO sahibinden (baslik, marka, motor, model, renk, yil, kilometre, fiyat, adres, tarih)
-                               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                           """, (
-                                        obje['İlan Başlığı'], obje['Marka'], obje['Motor'], obje['Model'], obje['Renk'], obje['Yıl'], obje['Kilometre'],
-                                            obje['Fiyat'], obje['Adres'], obje['Tarih']))
+        ## Veritabanındaki anlık verilerin her döngüde yenilenmesi.
+        cursor.execute("SELECT baslik, marka, motor, model FROM sahibinden")
+        mevcut_veriler = cursor.fetchall()
 
+        ## Veritabanında gönderilen aracın verileri mevcut ise, verinin atlanması ve sonraki aracın verilerinin eklenmesi.
+        yeni_veri = (obje['İlan Başlığı'], obje['Motor'], obje['Adres'], obje['Kilometre'], obje['Tarih'])
+        if yeni_veri in mevcut_veriler:
+                print("Veri atlandı")
+        else:
+            print("Obje veritabanına eklendi")
+            cursor.execute("""
+                        INSERT INTO sahibinden 
+                        (baslik, marka, motor, model, renk, yil, kilometre, fiyat, adres, tarih)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (
+                    obje['İlan Başlığı'],
+                    obje['Marka'],
+                    obje['Motor'],
+                    obje['Model'],
+                    obje['Renk'],
+                    obje['Yıl'],
+                    obje['Kilometre'],
+                    obje['Fiyat'],
+                    obje['Adres'],
+                    obje['Tarih']
+                ))
+
+            connect.commit()
+
+    ## Hata yönetimi.
     except Exception as e:
         print(f"Veri aktarılamadı hata kodu: {e}")
+        connect.rollback()
 
-    connect.commit()
-    cursor.close()
-    connect.close()
+    ## İşlemlerin bitmesi ve veritabanı bağlantısının kapatılması.
+    finally:
+        cursor.close()
+        connect.close()
 
     return
 
