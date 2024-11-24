@@ -1,6 +1,6 @@
 # Sahibinden.com Web Scraper
 
-Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Python tabanlı bir web kazıyıcı sağlar. Selenium tarayıcı otomasyonu ve PostgreSQL veri saklama için kullanılmaktadır.
+Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Python tabanlı bir web kazıyıcı(scrape) sağlar. Selenium tarayıcı otomasyonu ve PostgreSQL veri saklama için kullanılmaktadır.
 
 ---
 
@@ -52,7 +52,7 @@ arama = "Volkswagen Golf"  # Gerekli arama anahtar kelimesi
 yıl_min = "2012"         # Opsiyonel minimum yıl
 yıl_max = ""            # Opsiyonel maksimum yıl
 motor_hacmi = ""            # Opsiyonel motor hacmi
-vites = "Otomatik"          # Şanzıman türü ("Manuel" veya "Otomatik")
+vites = "Otomatik"          # Opsiyonel şanzıman türü ("Manuel" veya "Otomatik" olarak ayarlanabilir.)
 ```
 
 3. Dosyayı çalıştırın:
@@ -65,4 +65,4 @@ python main.py
 
 ## İletişim
 
-Herhangi bir geri bildiriminiz veya sorununuz varsa lütfen bariscem@proton.me adresinden bize ulaşın.
+Herhangi bir geri bildiriminiz veya sorununuz varsa lütfen bariscem@proton.me adresinden bana ulaşabilirsiniz.
