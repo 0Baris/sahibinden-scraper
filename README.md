@@ -72,4 +72,4 @@ python main.py
 
 ## İletişim
 
-Herhangi bir geri bildiriminiz veya sorununuz varsa lütfen bariscem@proton.me adresinden bana ulaşabilirsiniz.
+Herhangi bir geri bildiriminiz veya sorununuz varsa bariscem@proton.me adresinden bana ulaşabilirsiniz.
