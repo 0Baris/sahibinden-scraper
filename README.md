@@ -49,16 +49,18 @@ Bu projede PostreSQL kullanılmaktadır, internetten kurulum sağlayabilirsiniz.
 git clone https://github.com/0Baris/sahibinden-scraper.git
 cd sahibinden-scraper
 pip install -r requirements.txt
-
 ```
 
-2. main.py'de filtreleri özelleştirin:
+2. main.py'de **sahibinden_arama** fonksiyonunu özelleştirin:
+
+##### `sahibinden_arama(arama, yıl_min, yıl_max, motor_hacmi, vites)`
+
 ```python
-arama = "Volkswagen Golf"  # Gerekli arama anahtar kelimesi
-yıl_min = "2012"         # Opsiyonel minimum yıl
-yıl_max = ""            # Opsiyonel maksimum yıl
-motor_hacmi = ""            # Opsiyonel motor hacmi
-vites = "Otomatik"          # Opsiyonel şanzıman türü ("Manuel" veya "Otomatik" olarak ayarlanabilir.)
+arama = "Volkswagen Golf"  # Arama yapmak istediğiniz kelime veya model adı.
+yıl_min = "2012"           # Opsiyonel: Minimum yıl.
+yıl_max = ""               # Opsiyonel: Maksimum yıl.
+motor_hacmi = ""           # Opsiyonel: Motor hacmi filtresi (örnek: "1.6").
+vites = "Otomatik"         # Opsiyonel: Şanzıman türü ("Manuel" veya "Otomatik").
 ```
 
 3. Dosyayı çalıştırın:

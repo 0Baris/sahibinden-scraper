@@ -58,7 +58,6 @@ def veri_cek(marka, motor, renk, ilan_model, yil, ilan_basligi, ilan_kilometre, 
         if yeni_veri in mevcut_veriler:
                 print("Veri atlandı")
         else:
-            print("Obje veritabanına eklendi")
             cursor.execute("""
                         INSERT INTO sahibinden 
                         (baslik, marka, motor, model, renk, yil, kilometre, fiyat, tarih, adres)
