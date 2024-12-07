@@ -38,31 +38,37 @@ def sahibinden_arama(arama, yıl_min=None, yıl_max=None, motor_hacmi=None, vite
     sonuc_arttir.click()
     zaman(2)
 
-    ## Filtreleme başlangıcı
-    driver.find_element(by="xpath", value='//*[@id="searchCategoryContainer"]/div/div/ul/li[1]/a').click()
-    zaman(2)
+    # Filtre mevcut mu sorgusu.
+    if any([yıl_min, yıl_max, motor_hacmi, vites]):
 
-    ## Yıl filtreleri
-    if yıl_min:
-        driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/input[1]').send_keys(yıl_min)
-    if yıl_max:
-        driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/input[2]').send_keys(yıl_max)
+        # Filtreleme başlangıcı
+        driver.find_element(by="xpath", value='//*[@id="searchCategoryContainer"]/div/div/ul/li[1]/a').click()
+        zaman(2)
 
-    ### Spesifik vites seçimi
-    if vites:
+        # Yıl filtreleri
+        if yıl_min or yıl_max:
+            if yıl_min:
+                driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/input[1]').send_keys(
+                    yıl_min)
+            if yıl_max:
+                driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/input[2]').send_keys(
+                    yıl_max)
+
+        # Spesifik vites seçimi
         vites = vites.lower()
         driver.execute_script("window.scrollBy(0, 200);")
         if vites == "manuel":
-            driver.find_element(by="css selector", value='.js-attribute.facetedCheckbox[title="Manuel"]').click()
+                driver.find_element(by="css selector", value='.js-attribute.facetedCheckbox[title="Manuel"]').click()
         elif vites == "otomatik":
-            driver.find_element(by="css selector", value='.js-attribute.facetedCheckbox[title="Otomatik"]').click()
+                driver.find_element(by="css selector", value='.js-attribute.facetedCheckbox[title="Otomatik"]').click()
 
-    zaman(1)
+        zaman(1)
 
-    ### Filtreleme sonucu için butona tıklanması
-    filtre_button = driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/button')
-    filtre_button.click()
-    zaman(2)
+        # Filtreleme sonucu için butona tıklanması
+        driver.find_element(by="xpath", value='//*[@id="searchResultLeft-a5"]/dl/dd/div/button').click()
+        zaman(2)
+    else:
+        print("Filtreleme bulunamadı.")
 
     ### Verilerin çekilmesi için while döngüsü
     while True:
@@ -127,8 +133,6 @@ def sahibinden_arama(arama, yıl_min=None, yıl_max=None, motor_hacmi=None, vite
 
 # Örnek kullanım
 sahibinden_arama(
-    arama="Volkswagen Golf",
-    yıl_min="2016",
-    yıl_max="2016",
-    vites="Otomatik"
+    arama="Mercedes e200",
+    vites="Manuel"
 )
