@@ -1,13 +1,13 @@
 # Sahibinden.com Web Scraper
 
-Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Python tabanlı bir web kazıyıcı(scrape) sağlar. Selenium tarayıcı otomasyonu ve PostgreSQL veri saklama için kullanılmaktadır.
+Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Python tabanlı bir web kazıyıcı(scrape) sağlar. Nodriver tarayıcı otomasyonu ve SQLite3 veya Postresql veri saklama için kullanılmaktadır.
 
 ---
 
 ## Özellikler
 
 - **Otomatik Veri Çekme**: Sahibinden.com'da gezinir, filtre uygular ve araç ilanlarını çeker.
-- **Veri Depolama**: Çekilen verileri PostgreSQL veritabanına kaydeder.
+- **Veri Depolama**: Çekilen veriler SQLite3 veya Postresql veritabanına kaydeder.
 - **Özelleştirilebilir Filtreler**: Araç modeli, yıl aralığı, şanzıman türü ve motor hacmine göre filtreleme yapabilir.
 
 ---
@@ -16,7 +16,8 @@ Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Pyt
 
 - `Python 3.x`
 - `Chrome`
-- `PostreSQL`
+- `DB Browser?`
+- `PostreSQL?`
 
 ---
 
@@ -24,13 +25,14 @@ Bu proje, Sahibinden.com web sitesinden araç ilan verilerini toplamak için Pyt
 
 Kullanılan python kütüphaneleri.
 
-- `selenium`
+- `nodriver`
 - `undetected_chromedriver`
+- `bs4`
 - `psycopg2`
 
 ---
 
-### PostgreSQL
+### PostgreSQL -- **İsteğe bağlı!** -- SQLite mevcuttur.
 Bu projede PostreSQL kullanılmaktadır, internetten kurulum sağlayabilirsiniz.
 
 1. `postgres` adlı bir veritabanı oluşturun (veya bağlantı ayarlarını scriptte düzenleyin).
@@ -47,13 +49,17 @@ Bu projede PostreSQL kullanılmaktadır, internetten kurulum sağlayabilirsiniz.
 1. Depoyu klonlayın:
 ```bash
 git clone https://github.com/0Baris/sahibinden-scraper.git
+```
+```bash
 cd sahibinden-scraper
+```
+```bash
 pip install -r requirements.txt
 ```
 
-2. main.py'de **sahibinden_arama** fonksiyonunu özelleştirin:
+2. main.py'de **belirtilen yerleri** özelleştirin:
 
-##### `sahibinden_arama(arama, yıl_min, yıl_max, motor_hacmi, vites)`
+##### `main(arama, yıl_min, yıl_max, motor_hacmi, vites)`
 
 ```python
 arama = "Volkswagen Golf"  # Arama yapmak istediğiniz kelime veya model adı.
@@ -63,12 +69,29 @@ motor_hacmi = ""           # Opsiyonel: Motor hacmi filtresi (örnek: "1.6").
 vites = "Otomatik"         # Opsiyonel: Şanzıman türü ("Manuel" veya "Otomatik").
 ```
 
-3. Dosyayı çalıştırın:
+3. Paylaşılan .env Dosyasını düzenleyin.
+```bash
+# Veritabanı tercihi "sqlite" veya "postgres" başka bir şey denemeyin hata alırsınız.
+DB_TYPE=postgres
+
+# SQLite veritabanı ismi.
+SQLITE_DB_PATH=sahibinden.db
+
+# PostreSQL yapılandırması.
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=veritabanı_ismi
+POSTGRES_USER=kullanıcı_adı
+POSTGRES_PASSWORD=sifre
+```
+
+
+4. Dosyayı çalıştırın:
 ```bash
 python main.py
 ```
 
-4. Veriler PostgreSQL veritabanınızdaki `sahibinden` tablosuna kaydedilecektir.
+5. Veriler tercih ettiğiniz veritabanına kaydedilecektir.
 
 ---
 
