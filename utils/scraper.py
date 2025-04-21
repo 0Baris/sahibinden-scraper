@@ -3,7 +3,7 @@ import logging
 import utils.database as database
 import nodriver as uc
 from bs4 import BeautifulSoup
-
+import time 
 # Basit bir şekilde anlık logları takip etmeyi sağlar.
 logging.basicConfig(level=30)
 
@@ -22,21 +22,35 @@ async def main(arama, yıl_min=None, yıl_max=None, motor_hacmi=None, vites=None
     driver = await uc.start()
     # sahibinden.com'u açar.
     tab = await driver.get('https://www.sahibinden.com')
+    time.sleep(3)
 
     # Cookileri kabul etme.
     accept_cookies = await tab.find('Tüm Çerezleri Kabul Et', best_match=True)
     if accept_cookies:
         await accept_cookies.click()
+    time.sleep(3)
 
     ## Arama kısmına arama verisini gönderir.
     search_box = await tab.select('#searchText')
     await search_box.send_keys(arama)
-    await tab.sleep(1)
+    await tab.sleep(5)
+    time.sleep(2)
     
+    ## Arama butonuna tıklar.
+    search_button = await tab.select('button[type="submit"][value="Ara"]')
+    await search_button.click()
+    await tab.sleep(5)
+    time.sleep(2)
+
     ## Arama kısmında ilk çıkan öneriye tıklanır.
     first_suggestion = await tab.select('li.first-child.ui-menu-item a')
     await first_suggestion.click()
-    await tab.sleep(2)
+    await tab.sleep(5)
+
+    click_category = await tab.select('#searchCategoryContainer div div ul li:first-child a')
+    await click_category.click()
+    await tab.sleep(5)
+
 
     ## Sonuçları 50'ye çıkarır.
     results_dropdown = await tab.select('a.paging-size.Limit50Passive[title="50"]')
@@ -45,83 +59,118 @@ async def main(arama, yıl_min=None, yıl_max=None, motor_hacmi=None, vites=None
 
     # Filtre mevcutsa uygulanır.
     if any([yıl_min, yıl_max, motor_hacmi, vites]):
-
-        filter_button = await tab.select('#searchCategoryContainer div div ul li:first-child a')
-        await filter_button.click()
-        await tab.sleep(2)
-
-        # Minimum yıl filtresi
+        # Yıl filtresi
         if yıl_min:
             year_min_input = await tab.select('input[name="a5_min"]')
             await year_min_input.send_keys(yıl_min)
-            await tab.sleep(2)
-
-        # Maximum yıl filtresi
+            await tab.sleep(1)
         if yıl_max:
             year_max_input = await tab.select('input[name="a5_max"]')
             await year_max_input.send_keys(yıl_max)
-            await tab.sleep(2)
+            await tab.sleep(1)
+
+        # Motor hacmi filtresi
+        if motor_hacmi:
+            # motor_hacmi ör: "1.5" veya "1301 - 1600 cm3"
+            motor_hacmi = motor_hacmi.replace(" ", "")
+            if motor_hacmi in ["1.3", "1300", "1300cm3", "1300cm3'ekadar"]:
+                motor_checkbox = await tab.select('a[data-value="51977"].js-attribute.facetedCheckbox')
+            elif motor_hacmi in ["1.5", "1.6", "1301-1600", "1301-1600cm3"]:
+                motor_checkbox = await tab.select('a[data-value="1118042"].js-attribute.facetedCheckbox')
+            elif motor_hacmi in ["1.8", "1601-1800", "1601-1800cm3"]:
+                motor_checkbox = await tab.select('a[data-value="51979"].js-attribute.facetedCheckbox')
+            elif motor_hacmi in ["2.0", "1801-2000", "1801-2000cm3"]:
+                motor_checkbox = await tab.select('a[data-value="51980"].js-attribute.facetedCheckbox')
+            else:
+                motor_checkbox = None
+            if motor_checkbox:
+                await motor_checkbox.click()
+                await tab.sleep(1)
 
         # Vites filtresi
         if vites:
             vites = vites.lower()
-            await tab.scroll_down(200)
-
             if vites == "manuel":
                 manuel_checkbox = await tab.select('a[data-value="32467"].js-attribute.facetedCheckbox')
                 await manuel_checkbox.click()
-                await tab.sleep(2)
-
+                await tab.sleep(1)
             elif vites == "otomatik":
                 otomatik_checkbox = await tab.select('a[data-value="32466"].js-attribute.facetedCheckbox')
                 await otomatik_checkbox.click()
-                await tab.sleep(2)
+                await tab.sleep(1)
 
-        # Filtre uygulanır.
-        filter_apply = await tab.select('#searchResultLeft-a5 dl dd div button')
-        await filter_apply.click()
-        await tab.sleep(2)
+        # Filtreleri uygula butonuna tıkla (Yıl veya KM gibi alanlarda)
+        filter_apply = await tab.select('button.js-manual-search-button')
+        if filter_apply:
+            await filter_apply.click()
+            await tab.sleep(2)
+    else:
+        print("Filtre bulunamadı!")
 
     # Her sayfanın araç verilerini çekmek için döngü.
     while True:
         try:
             # Sayfanın html içeriğini alır.
             html_content = await tab.get_content()
+            # print(html_content[500:2500])
             # Alınan html'i bs4'e yapıştırır
             soup = BeautifulSoup(html_content, 'html.parser')
 
             # Sayfada eşleşen veriler çekilir.
-            resim_urls = [img.get('src') for img in soup.select('.searchResultsLargeThumbnail img')]
-            marka = soup.select_one('#search_cats ul li:nth-child(3) div a').text.strip()
-            model_motor = [elem.text.strip() for elem in soup.select('.searchResultsTagAttributeValue')]
-            basliklar = [elem.text.strip() for elem in soup.select('.searchResultsTitleValue')]
-            renk_km_yil = [elem.text.strip() for elem in soup.select('.searchResultsAttributeValue')]
-            fiyatlar = [elem.text.strip()[:-3].replace('.', '') for elem in soup.select('.searchResultsPriceValue')]
-            tarihler = [elem.text.strip().replace('\n', ' ') for elem in soup.select('.searchResultsDateValue')]
-            sehirler = [elem.text.strip().replace('\n', ' ') for elem in soup.select('.searchResultsLocationValue')]
+            # Her ilan satırını bul
+            ilanlar = soup.select('tr.searchResultsItem[data-id]')
+            for ilan in ilanlar:
+                try:
+                    # Resim URL'si
+                    img_tag = ilan.select_one('td.searchResultsLargeThumbnail img')
+                    resim_url = img_tag['src'] if img_tag and img_tag.has_attr('src') else "N/A"
 
+                    # Marka, Model, Motor
+                    tag_attrs = ilan.select('td.searchResultsTagAttributeValue')
+                    marka = tag_attrs[0].text.strip() if len(tag_attrs) > 0 else "N/A"
+                    model = tag_attrs[1].text.strip() if len(tag_attrs) > 1 else "N/A"
+                    motor = tag_attrs[2].text.strip() if len(tag_attrs) > 2 else "N/A"
 
-            ## Veriler temizlenir ve kaydedilir.
-            for i in range(len(basliklar)):
-                # Verileri düzenler, temizler.
-                resim_url = resim_urls[i] if i < len(resim_urls) else "N/A"
-                model = model_motor[i*2] if len(model_motor) > i*2 else "N/A"
-                motor = model_motor[i*2+1] if len(model_motor) > i*2+1 else "N/A"
-                yil = renk_km_yil[i*3] if len(renk_km_yil) > i*3 else "N/A"
-                km = renk_km_yil[i*3+1].replace('.', '') if len(renk_km_yil) > i*3+1 else "N/A"
-                renk = renk_km_yil[i*3+2] if len(renk_km_yil) > i*3+2 else "N/A"
+                    # Başlık
+                    baslik_tag = ilan.select_one('td.searchResultsTitleValue a.classifiedTitle')
+                    baslik = baslik_tag.text.strip() if baslik_tag else "N/A"
 
-                ## Spesifik bir motor hacmi isteniyorsa ona göre veriler kaydedilir.
-                if not motor_hacmi or motor_hacmi in motor:
-                    try:
-                        yil_int = int(yil) if yil != "N/A" else 0
-                        km_int = int(km) if km != "N/A" else 0
-                        fiyat_int = int(fiyatlar[i]) if fiyatlar[i] != "N/A" else 0
-                        database.veri_ekle(marka, motor, renk, model, yil_int, basliklar[i], km_int, fiyat_int, tarihler[i], sehirler[i], resim_url)
-                    # Hata yakalama.
-                    except ValueError as e:
-                        print(f"Veri dönüşüm hatası: {e}")
-                        continue
+                    # Yıl, KM, Renk
+                    attr_vals = ilan.select('td.searchResultsAttributeValue')
+                    yil = attr_vals[0].text.strip() if len(attr_vals) > 0 else "N/A"
+                    km = attr_vals[1].text.strip().replace('.', '') if len(attr_vals) > 1 else "N/A"
+                    renk = attr_vals[2].text.strip() if len(attr_vals) > 2 else "N/A"
+
+                    # Fiyat
+                    fiyat_tag = ilan.select_one('td.searchResultsPriceValue div.classified-price-container span')
+                    fiyat = fiyat_tag.text.strip().split(' ')[0].replace('.', '') if fiyat_tag else "N/A"
+
+                    # Tarih
+                    tarih_tag = ilan.select_one('td.searchResultsDateValue')
+                    if tarih_tag:
+                        spans = tarih_tag.select('span')
+                        tarih = ' '.join([span.text.strip() for span in spans])
+                    else:
+                        tarih = "N/A"
+
+                    # Şehir
+                    sehir_tag = ilan.select_one('td.searchResultsLocationValue')
+                    sehir = sehir_tag.text.strip().replace(" ", "/") if sehir_tag else "N/A"
+
+                    # Motor hacmi filtresi kontrolü
+                    if not motor_hacmi or motor_hacmi in motor:
+                        try:
+                            yil_int = int(yil) if yil != "N/A" else 0
+                            km_int = int(km) if km != "N/A" else 0
+                            fiyat_int = int(fiyat) if fiyat != "N/A" else 0
+                            print(marka, motor, renk, model, yil_int, baslik, km_int, fiyat_int, tarih, sehir, resim_url)
+                            database.veri_ekle(marka, motor, renk, model, yil_int, baslik, km_int, fiyat_int, tarih, sehir, resim_url)
+                        except ValueError as e:
+                            print(f"Veri dönüşüm hatası: {e}")
+                            continue
+                except Exception as e:
+                    print(f"Bir ilan işlenirken hata oluştu: {e}")
+                    continue
 
             # Sayfanın verileri alınıp işlendikten sonra sonraki sayfaya geçer
             next_button = await tab.select('.prevNextBut[title="Sonraki"]')

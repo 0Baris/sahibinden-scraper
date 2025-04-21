@@ -10,8 +10,8 @@ if __name__ == '__main__':
 
     ## main(arama, yıl_min, yıl_max, motor_hacmi, vites)
     uc.loop().run_until_complete(main(
-        arama="Renault Fluence",    
-        vites="Manuel",
-        yıl_min="2016",
-        yıl_max="2016"
+        arama="Renault Clio",  
+        yıl_min= "2016",
+        yıl_max= "2016",
+        motor_hacmi= "1.5"
     ))
